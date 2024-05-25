@@ -1,137 +1,93 @@
 #include <iostream>
 #include <chrono>
-#include <string>
-#include <fstream>
 #include <vector>
-#include <algorithm>
+#include <conio.h> // For _getch() on Windows
 
 using namespace std;
 
-// Function to show mistakes
-void showMistakes(const string& input, const string& correct) {
-    for (size_t i = 0; i < correct.size(); ++i) {
-        if (i < input.size() && input[i] == correct[i]) {
-            cout << input[i];
-        } else {
-            cout << "\033[31m" << (i < input.size() ? input[i] : '_') << "\033[0m";
-        }
-    }
-    cout << endl;
-}
-
-// Function to save score to file
-void saveScore(double score) {
-    ofstream file("scores.txt", ios::app);
-    if (file.is_open()) {
-        file << score << endl;
-        file.close();
-    } else {
-        cerr << "Unable to open file for writing.\n";
-    }
-}
-
-// Function to load scores from file
-vector<double> loadScores() {
+class TypingTest {
+private:
     vector<double> scores;
-    ifstream file("scores.txt");
-    if (file.is_open()) {
-        double score;
-        while (file >> score) {
-            scores.push_back(score);
-        }
-        file.close();
-    } else {
-        cerr << "Unable to open file for reading.\n";
-    }
-    return scores;
-}
 
-// Function to display scores
-void displayScores() {
-    vector<double> scores = loadScores();
-    if (scores.empty()) {
-        cout << "No scores available.\n";
-    } else {
-        cout << "\nPrevious scores:\n";
-        sort(scores.begin(), scores.end());
-        for (double score : scores) {
-            cout << score << " seconds\n";
-        }
-    }
-}
+public:
+    void displayMenu() {
+        while (true) {
+            cout << "1. Typing Test\n";
+            cout << "2. Check Scores\n";
+            cout << "3. Exit\n";
+            cout << "Choose an option: ";
+            int choice;
+            cin >> choice;
 
-// Function to perform the typing test
-void typingTest() {
-    const string correctAlphabet = "abcdefghijklmnopqrstuvwxyz";
-
-    // Display instructions
-    cout << "Typing Test: Type the alphabet (a-z) as fast as you can starting with 'a'.\n";
-    cout << "Start typing...\n";
-
-    // Capture the start time when the user types 'a'
-    char firstChar;
-    do {
-        cin >> firstChar;
-    } while (firstChar != 'a');
-
-    auto start = chrono::high_resolution_clock::now();
-
-    // Capture the rest of the user input
-    string input;
-    getline(cin, input);
-    input = 'a' + input;  // Include the 'a' as the first character
-
-    // Capture the end time
-    auto end = chrono::high_resolution_clock::now();
-
-    // Calculate the elapsed time
-    chrono::duration<double> elapsed = end - start;
-    double timeTaken = elapsed.count();
-
-    // Check if the input is correct
-    if (input == correctAlphabet) {
-        cout << "You typed the alphabet correctly!\n";
-    } else {
-        cout << "You did not type the alphabet correctly.\n";
-        cout << "Mistakes: ";
-        showMistakes(input, correctAlphabet);
-    }
-
-    // Display the elapsed time
-    cout << "Time taken: " << timeTaken << " seconds.\n";
-
-    // Save the score
-    saveScore(timeTaken);
-}
-
-// Main menu
-void displayMenu() {
-    int choice;
-    do {
-        cout << "1. Typing Test\n";
-        cout << "2. Check Scores\n";
-        cout << "3. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
-
-        switch (choice) {
-            case 1:
-                cin.ignore(); // Ignore remaining newline character from previous input
-                typingTest();
+            if (choice == 1) {
+                startTypingTest();
+            } else if (choice == 2) {
+                checkScores();
+            } else if (choice == 3) {
                 break;
-            case 2:
-                displayScores();
-                break;
-            case 3:
-                cout << "Exiting...\n";
-                break;
-            default:
+            } else {
                 cout << "Invalid choice. Please try again.\n";
+            }
         }
-    } while (choice != 3);
-}
+    }
+
+    void startTypingTest() {
+        cout << "Typing Test: Type the alphabet (a-z) as fast as you can.\n";
+        cout << "Start typing... (type 'a' to start)\n";
+
+        string input;
+        char firstChar;
+
+        // Wait for the user to press 'a'
+        while (true) {
+            firstChar = _getch(); // Use _getch() to capture a single character input without waiting for Enter
+            if (firstChar == 'a') {
+                break;
+            }
+        }
+
+        // Capture the start time
+        auto start = chrono::high_resolution_clock::now();
+        input.push_back(firstChar);
+
+        // Capture the rest of the user input
+        for (int i = 1; i < 26; ++i) { // We already have 'a', so we need 25 more characters
+            char nextChar = _getch();
+            input.push_back(nextChar);
+        }
+
+        // Capture the end time
+        auto end = chrono::high_resolution_clock::now();
+
+        // Calculate the elapsed time
+        chrono::duration<double> elapsed = end - start;
+
+        // Check if the input is correct
+        if (input == "abcdefghijklmnopqrstuvwxyz") {
+            cout << "You typed the alphabet correctly!\n";
+            scores.push_back(elapsed.count());
+        } else {
+            cout << "You did not type the alphabet correctly.\n";
+        }
+
+        // Display the elapsed time
+        cout << "Time taken: " << elapsed.count() << " seconds.\n";
+    }
+
+    void checkScores() {
+        if (scores.empty()) {
+            cout << "No scores available.\n";
+        } else {
+            cout << "Scores:\n";
+            for (size_t i = 0; i < scores.size(); ++i) {
+                cout << "Attempt " << i + 1 << ": " << scores[i] << " seconds\n";
+            }
+        }
+    }
+};
 
 int main() {
-    displayMenu();
+    TypingTest typingTest;
+    typingTest.displayMenu();
     return 0;
 }
