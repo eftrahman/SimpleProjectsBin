@@ -4,35 +4,49 @@
 
 using namespace std;
 
+void showMistakes(const string& input, const string& correct) {
+    for (size_t i = 0; i < correct.size(); ++i) {
+        if (i < input.size() && input[i] == correct[i]) {
+            cout << input[i];
+        } else {
+            cout << "\033[31m" << (i < input.size() ? input[i] : '_') << "\033[0m";
+        }
+    }
+    cout << endl;
+}
+
 int main() {
-    // Step 1: Display instructions
+    const string correctAlphabet = "abcdefghijklmnopqrstuvwxyz";
+
+    // Display instructions
     cout << "Typing Test: Type the alphabet (a-z) as fast as you can and press Enter.\n";
     cout << "Press Enter to start...\n";
     cin.ignore(); // Wait for user to press Enter
 
-    // Step 2: Capture the start time
+    // Capture the start time
     auto start = chrono::high_resolution_clock::now();
 
-    // Step 3: Capture the user input
+    // Capture the user input
     string input;
     getline(cin, input);
 
-    // Step 4: Capture the end time
+    // Capture the end time
     auto end = chrono::high_resolution_clock::now();
 
-    // Step 5: Calculate the elapsed time
+    // Calculate the elapsed time
     chrono::duration<double> elapsed = end - start;
 
-    // Step 6: Check if the input is correct
-    if (input == "abcdefghijklmnopqrstuvwxyz") {
+    // Check if the input is correct
+    if (input == correctAlphabet) {
         cout << "You typed the alphabet correctly!\n";
     } else {
         cout << "You did not type the alphabet correctly.\n";
+        cout << "Mistakes: ";
+        showMistakes(input, correctAlphabet);
     }
 
-    // Step 7: Display the elapsed time
+    // Display the elapsed time
     cout << "Time taken: " << elapsed.count() << " seconds.\n";
 
     return 0;
 }
-
