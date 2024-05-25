@@ -46,20 +46,40 @@ vector<double> loadScores() {
     return scores;
 }
 
-int main() {
+// Function to display scores
+void displayScores() {
+    vector<double> scores = loadScores();
+    if (scores.empty()) {
+        cout << "No scores available.\n";
+    } else {
+        cout << "\nPrevious scores:\n";
+        sort(scores.begin(), scores.end());
+        for (double score : scores) {
+            cout << score << " seconds\n";
+        }
+    }
+}
+
+// Function to perform the typing test
+void typingTest() {
     const string correctAlphabet = "abcdefghijklmnopqrstuvwxyz";
 
     // Display instructions
-    cout << "Typing Test: Type the alphabet (a-z) as fast as you can and press Enter.\n";
-    cout << "Press Enter to start...\n";
-    cin.ignore(); // Wait for user to press Enter
+    cout << "Typing Test: Type the alphabet (a-z) as fast as you can starting with 'a'.\n";
+    cout << "Start typing...\n";
 
-    // Capture the start time
+    // Capture the start time when the user types 'a'
+    char firstChar;
+    do {
+        cin >> firstChar;
+    } while (firstChar != 'a');
+
     auto start = chrono::high_resolution_clock::now();
 
-    // Capture the user input
+    // Capture the rest of the user input
     string input;
     getline(cin, input);
+    input = 'a' + input;  // Include the 'a' as the first character
 
     // Capture the end time
     auto end = chrono::high_resolution_clock::now();
@@ -82,15 +102,36 @@ int main() {
 
     // Save the score
     saveScore(timeTaken);
-
-    // Load and display previous scores
-    vector<double> scores = loadScores();
-    cout << "\nPrevious scores:\n";
-    sort(scores.begin(), scores.end());
-    for (double score : scores) {
-        cout << score << " seconds\n";
-    }
-
-    return 0;
 }
 
+// Main menu
+void displayMenu() {
+    int choice;
+    do {
+        cout << "1. Typing Test\n";
+        cout << "2. Check Scores\n";
+        cout << "3. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cin.ignore(); // Ignore remaining newline character from previous input
+                typingTest();
+                break;
+            case 2:
+                displayScores();
+                break;
+            case 3:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 3);
+}
+
+int main() {
+    displayMenu();
+    return 0;
+}
