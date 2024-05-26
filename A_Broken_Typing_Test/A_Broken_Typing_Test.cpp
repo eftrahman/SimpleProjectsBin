@@ -40,44 +40,59 @@ public:
                     return;
                 default:
                     cout << "Invalid choice. Please try again.\n";
+                    cin.ignore(); // Ignore the newline character left by previous input
+                    cin.get(); // Wait for user to press Enter
             }
         }
     }
 
     void runTest() {
-        clearScreen();
-        // Display instructions
-        cout << "Typing Test: Type the alphabet (a-z) as fast as you can and press Enter.\n";
-        cout << "Press Enter to start...\n";
-        cin.ignore(); // Ignore the newline character left by previous input
-        cin.ignore(); // Wait for user to press Enter
+        while (true) {
+            clearScreen();
+            // Display instructions
+            cout << "Typing Test: Type the alphabet (a-z) as fast as you can and press Enter.\n";
+            cout << "Press Enter to start...\n";
+            cin.ignore(); // Ignore the newline character left by previous input
+            cin.ignore(); // Wait for user to press Enter
 
-        // Capture the start time
-        auto start = chrono::high_resolution_clock::now();
+            // Capture the start time
+            auto start = chrono::high_resolution_clock::now();
 
-        // Capture the user input
-        string input;
-        getline(cin, input);
+            // Capture the user input
+            string input;
+            getline(cin, input);
 
-        // Capture the end time
-        auto end = chrono::high_resolution_clock::now();
+            // Capture the end time
+            auto end = chrono::high_resolution_clock::now();
 
-        // Calculate the elapsed time
-        chrono::duration<double> elapsed = end - start;
+            // Calculate the elapsed time
+            chrono::duration<double> elapsed = end - start;
 
-        // Check if the input is correct
-        if (input == "abcdefghijklmnopqrstuvwxyz") {
-            cout << "You typed the alphabet correctly!\n";
-            scores.push_back(elapsed.count());
-        } else {
-            cout << "You did not type the alphabet correctly.\n";
+            // Check if the input is correct
+            if (input == "abcdefghijklmnopqrstuvwxyz") {
+                cout << "You typed the alphabet correctly!\n";
+                scores.push_back(elapsed.count());
+            } else {
+                cout << "You did not type the alphabet correctly.\n";
+            }
+
+            // Display the elapsed time
+            cout << "Time taken: " << elapsed.count() << " seconds.\n";
+
+            // Navigation options
+            cout << "1. Restart Test\n";
+            cout << "2. Home Menu\n";
+            cout << "Enter your choice: ";
+            int choice;
+            cin >> choice;
+
+            if (choice == 2) {
+                break;
+            } else if (choice != 1) {
+                cout << "Invalid choice. Returning to home menu...\n";
+                break;
+            }
         }
-
-        // Display the elapsed time
-        cout << "Time taken: " << elapsed.count() << " seconds.\n";
-        cout << "Press Enter to return to the menu...";
-        cin.ignore(); // Wait for user to press Enter
-        cin.get();
     }
 
     void showScores() {
@@ -91,8 +106,8 @@ public:
             }
         }
         cout << "Press Enter to return to the menu...";
-        cin.ignore(); // Wait for user to press Enter
-        cin.get();
+        cin.ignore(); // Ignore the newline character left by previous input
+        cin.get(); // Wait for user to press Enter
     }
 };
 
