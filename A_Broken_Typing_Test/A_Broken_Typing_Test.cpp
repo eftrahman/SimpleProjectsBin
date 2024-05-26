@@ -2,13 +2,15 @@
 #include <chrono>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <ctime>
 #include <cstdlib> // For system()
 
 using namespace std;
 
 class TypingTest {
 private:
-    vector<double> scores;
+    string scoresFile = "scores.txt";
 
     void clearScreen() const {
         #if defined(_WIN32) || defined(_WIN64)
@@ -16,6 +18,18 @@ private:
         #else
             system("clear");
         #endif
+    }
+
+    void saveScore(const string& name, double timeTaken) {
+        ofstream outFile(scoresFile, ios::app);
+        if (outFile.is_open()) {
+            auto now = chrono::system_clock::now();
+            time_t now_time = chrono::system_clock::to_time_t(now);
+            outFile << name << " " << timeTaken << " " << ctime(&now_time);
+            outFile.close();
+        } else {
+            cout << "Unable to open file to save scores.\n";
+        }
     }
 
 public:
@@ -71,15 +85,18 @@ public:
             // Calculate the elapsed time
             chrono::duration<double> elapsed = end - start;
 
-            cout<<endl;
             // Check if the input is correct
             if (input == "abcdefghijklmnopqrstuvwxyz") {
-                cout << "****<You typed the alphabet correctly!>****\n";
-                scores.push_back(elapsed.count());
-                cout << "         Time taken: " << elapsed.count() << " seconds.\n";
+                cout << "*** You typed the alphabet correctly! ***\n";
+                cout << "       Time taken: " << elapsed.count() << " seconds.\n";
+                cout<<endl;
+                cout << "Enter your name: ";
+                string name;
+                getline(cin, name);
+                saveScore(name, elapsed.count());
             } else {
-                cout << "?????? #You did not type the alphabet correctly.# ??????\n";
-                cout << "                  ~Try Again~\n";
+                cout << "???? You did not type the alphabet correctly. ????\n";
+                cout << "                   ~Try Again~"<<endl;
             }
 
             // Display the elapsed time
@@ -104,13 +121,16 @@ public:
 
     void showScores() {
         clearScreen();
-        if (scores.empty()) {
-            cout << "No scores available.\n";
-        } else {
+        ifstream inFile(scoresFile);
+        if (inFile.is_open()) {
+            string line;
             cout << "Scores:\n";
-            for (size_t i = 0; i < scores.size(); ++i) {
-                cout << "Attempt " << (i + 1) << ": " << scores[i] << " seconds\n";
+            while (getline(inFile, line)) {
+                cout << line << endl;
             }
+            inFile.close();
+        } else {
+            cout << "No scores available.\n";
         }
         cout << "Press Enter to return to the menu...";
         cin.ignore(); // Ignore the newline character left by previous input
