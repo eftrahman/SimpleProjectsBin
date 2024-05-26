@@ -55,6 +55,9 @@ public:
             cin.ignore(); // Ignore the newline character left by previous input
             cin.ignore(); // Wait for user to press Enter
 
+            // Indicate that the test has started
+            cout << ">> ";
+
             // Capture the start time
             auto start = chrono::high_resolution_clock::now();
 
@@ -68,18 +71,22 @@ public:
             // Calculate the elapsed time
             chrono::duration<double> elapsed = end - start;
 
+            cout<<endl;
             // Check if the input is correct
             if (input == "abcdefghijklmnopqrstuvwxyz") {
-                cout << "You typed the alphabet correctly!\n";
+                cout << "****<You typed the alphabet correctly!>****\n";
                 scores.push_back(elapsed.count());
+                cout << "         Time taken: " << elapsed.count() << " seconds.\n";
             } else {
-                cout << "You did not type the alphabet correctly.\n";
+                cout << "?????? #You did not type the alphabet correctly.# ??????\n";
+                cout << "                  ~Try Again~\n";
             }
 
             // Display the elapsed time
-            cout << "Time taken: " << elapsed.count() << " seconds.\n";
+            //cout << "Time taken: " << elapsed.count() << " seconds.\n";
 
             // Navigation options
+            cout<<endl;
             cout << "1. Restart Test\n";
             cout << "2. Home Menu\n";
             cout << "Enter your choice: ";
