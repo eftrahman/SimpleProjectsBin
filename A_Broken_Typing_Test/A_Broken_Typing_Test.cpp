@@ -10,7 +10,7 @@
 
 using namespace std;
 
-class TypingTest {
+class KeyMaster {
 private:
     string scoresFile = "scores.txt";
 
@@ -65,10 +65,25 @@ private:
         return scores;
     }
 
+    void displayScores(const vector<ScoreEntry>& scores) const {
+        for (const auto& score : scores) {
+            cout << " > " << score.name << " - " << score.timeTaken << " " << score.dateTime << endl;
+        }
+    }
+
+    static time_t parseDateTime(const string& dateTime) {
+        struct tm tm;
+        strptime(dateTime.c_str(), " %a %b %d %H:%M:%S %Y\n", &tm);
+        return mktime(&tm);
+    }
+
 public:
     void displayMenu() {
         while (true) {
             clearScreen();
+            cout << "    >>~< KeyMaster >~<<";
+            cout << endl;
+            cout << endl;
             cout << "1. Typing Test\n";
             cout << "2. Check Scores\n";
             cout << "3. Exit\n";
@@ -96,14 +111,17 @@ public:
     void runTest() {
         while (true) {
             clearScreen();
+            cout << "    >>~< KeyMaster >~<<";
+            cout << endl;
+            cout << endl;
             // Display instructions
-            cout << ">> Type the alphabet (a-z) as fast as you can and press Enter.\n";
-            cout << ">> Press Enter to start...\n";
+            cout << " >> Type the alphabet (a-z) as fast as you can and press Enter.\n";
+            cout << " >> Press Enter to start >>\n";
             cin.ignore(); // Ignore the newline character left by previous input
             cin.ignore(); // Wait for user to press Enter
 
             // Indicate that the test has started
-            cout << ">> ";
+            cout << " >> ";
 
             // Capture the start time
             auto start = chrono::high_resolution_clock::now();
@@ -149,34 +167,72 @@ public:
         }
     }
 
-    void showScores() {
+    void showScores(bool showAll = false) {
         clearScreen();
         vector<ScoreEntry> scores = loadScores();
 
         if (scores.empty()) {
             cout << "No scores available.\n";
         } else {
-            sort(scores.begin(), scores.end());
-            cout << "Top 3 Performances:\n";
-            for (size_t i = 0; i < min(scores.size(), static_cast<size_t>(3)); ++i) {
-                const auto& score = scores[i];
-                cout << " *** "<< i + 1 << ". " << score.name << " - " << score.timeTaken << " seconds on " << score.dateTime<<endl;
-            }
+            if (!showAll) {
+                // Sorting by timeTaken to find top 3 performances
+                vector<ScoreEntry> sortedScores = scores;
+                sort(sortedScores.begin(), sortedScores.end());
 
-            cout << "\nAll Scores:\n";
-            for (const auto& score : scores) {
-                cout << score.name << " " << score.timeTaken << " " << score.dateTime << endl;
+                cout << "    >>~< KeyMaster >~<<";
+                cout << endl;
+                cout << endl;
+                cout << "Top 3 Performances:\n";
+                for (size_t i = 0; i < min(sortedScores.size(), static_cast<size_t>(3)); ++i) {
+                    const auto& score = sortedScores[i];
+                    cout << " *** " << i + 1 << ". " << score.name << " - " << score.timeTaken << " seconds on " << score.dateTime << endl;
+                }
+
+                // Sorting by date (newest first) for displaying last 15 scores
+                sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
+                    return parseDateTime(a.dateTime) > parseDateTime(b.dateTime);
+                });
+
+                cout << "\nLast 15 Scores:\n";
+                size_t startIdx = scores.size() > 15 ? scores.size() - 15 : 0;
+                displayScores(vector<ScoreEntry>(scores.begin() + startIdx, scores.end()));
+
+                cout << "\n # Press >> 'A' >> Enter    -   All Scores " << endl;
+                cout << " # Press >> Enter           -   return to the menu..." << endl;
+                cout << " >> ";
+                char choice;
+                cin.ignore(); // Ignore the newline character left by previous input
+                choice = cin.get();
+                if (choice == 'A' || choice == 'a') {
+                    showScores(true);
+                    return;
+                }
+            } else {
+                // Sorting by date (newest first) for displaying all scores
+                sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
+                    return parseDateTime(a.dateTime) > parseDateTime(b.dateTime);
+                });
+
+                cout << "\nAll Scores:\n";
+                displayScores(scores);
+
+                cout << "Press Enter to return to the menu...";
+                cin.ignore(); // Ignore the newline character left by previous input
+                cin.get(); // Wait for user to press Enter
             }
         }
-
-        cout << "Press Enter to return to the menu...";
-        cin.ignore(); // Ignore the newline character left by previous input
-        cin.get(); // Wait for user to press Enter
     }
 };
 
 int main() {
-    TypingTest test;
+    cout << endl;
+    cout << endl;
+    cout << "    >>~< KeyMaster >~<<";
+    cout << endl;
+    cout << endl;
+    cout << " >     Press Enter...";
+    cin.get();
+    KeyMaster test;
     test.displayMenu();
     return 0;
 }
