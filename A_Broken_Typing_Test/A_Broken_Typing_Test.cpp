@@ -5,6 +5,8 @@
 #include <fstream>
 #include <ctime>
 #include <cstdlib> // For system()
+#include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -30,6 +32,37 @@ private:
         } else {
             cout << "Unable to open file to save scores.\n";
         }
+    }
+
+    struct ScoreEntry {
+        string name;
+        double timeTaken;
+        string dateTime;
+
+        bool operator<(const ScoreEntry& other) const {
+            return timeTaken < other.timeTaken;
+        }
+    };
+
+    vector<ScoreEntry> loadScores() {
+        vector<ScoreEntry> scores;
+        ifstream inFile(scoresFile);
+        if (inFile.is_open()) {
+            string line;
+            while (getline(inFile, line)) {
+                istringstream iss(line);
+                string name;
+                double timeTaken;
+                string dateTime;
+                iss >> name >> timeTaken;
+                getline(iss, dateTime);
+                if (!iss.fail()) {
+                    scores.push_back({name, timeTaken, dateTime});
+                }
+            }
+            inFile.close();
+        }
+        return scores;
     }
 
 public:
@@ -64,8 +97,8 @@ public:
         while (true) {
             clearScreen();
             // Display instructions
-            cout << "Typing Test: Type the alphabet (a-z) as fast as you can and press Enter.\n";
-            cout << "Press Enter to start...\n";
+            cout << ">> Type the alphabet (a-z) as fast as you can and press Enter.\n";
+            cout << ">> Press Enter to start...\n";
             cin.ignore(); // Ignore the newline character left by previous input
             cin.ignore(); // Wait for user to press Enter
 
@@ -89,21 +122,18 @@ public:
             if (input == "abcdefghijklmnopqrstuvwxyz") {
                 cout << "*** You typed the alphabet correctly! ***\n";
                 cout << "       Time taken: " << elapsed.count() << " seconds.\n";
-                cout<<endl;
+                cout << endl;
                 cout << "Enter your name: ";
                 string name;
                 getline(cin, name);
                 saveScore(name, elapsed.count());
             } else {
                 cout << "???? You did not type the alphabet correctly. ????\n";
-                cout << "                   ~Try Again~"<<endl;
+                cout << "                   ~Try Again~" << endl;
             }
 
-            // Display the elapsed time
-            //cout << "Time taken: " << elapsed.count() << " seconds.\n";
-
             // Navigation options
-            cout<<endl;
+            cout << endl;
             cout << "1. Restart Test\n";
             cout << "2. Home Menu\n";
             cout << "Enter your choice: ";
@@ -121,17 +151,24 @@ public:
 
     void showScores() {
         clearScreen();
-        ifstream inFile(scoresFile);
-        if (inFile.is_open()) {
-            string line;
-            cout << "Scores:\n";
-            while (getline(inFile, line)) {
-                cout << line << endl;
-            }
-            inFile.close();
-        } else {
+        vector<ScoreEntry> scores = loadScores();
+
+        if (scores.empty()) {
             cout << "No scores available.\n";
+        } else {
+            sort(scores.begin(), scores.end());
+            cout << "Top 3 Performances:\n";
+            for (size_t i = 0; i < min(scores.size(), static_cast<size_t>(3)); ++i) {
+                const auto& score = scores[i];
+                cout << " *** "<< i + 1 << ". " << score.name << " - " << score.timeTaken << " seconds on " << score.dateTime<<endl;
+            }
+
+            cout << "\nAll Scores:\n";
+            for (const auto& score : scores) {
+                cout << score.name << " " << score.timeTaken << " " << score.dateTime << endl;
+            }
         }
+
         cout << "Press Enter to return to the menu...";
         cin.ignore(); // Ignore the newline character left by previous input
         cin.get(); // Wait for user to press Enter
