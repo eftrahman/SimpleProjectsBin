@@ -67,14 +67,8 @@ private:
 
     void displayScores(const vector<ScoreEntry>& scores) const {
         for (const auto& score : scores) {
-            cout << " > " << score.name << " - " << score.timeTaken << " " << score.dateTime << endl;
+            cout << " > " << score.name << " - "<< " " << score.timeTaken << " " << score.dateTime << endl;
         }
-    }
-
-    static time_t parseDateTime(const string& dateTime) {
-        struct tm tm;
-        strptime(dateTime.c_str(), " %a %b %d %H:%M:%S %Y\n", &tm);
-        return mktime(&tm);
     }
 
 public:
@@ -183,14 +177,14 @@ public:
                 cout << endl;
                 cout << endl;
                 cout << "Top 3 Performances:\n";
-                for (size_t i = 0; i < min(sortedScores.size(), static_cast<size_t>(3)); ++i) {
+                for (size_t i = 0; i < min(sortedScores.size(), static_cast<size_t>(5)); ++i) {
                     const auto& score = sortedScores[i];
                     cout << " *** " << i + 1 << ". " << score.name << " - " << score.timeTaken << " seconds on " << score.dateTime << endl;
                 }
 
                 // Sorting by date (newest first) for displaying last 15 scores
                 sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
-                    return parseDateTime(a.dateTime) > parseDateTime(b.dateTime);
+                    return a.dateTime > b.dateTime;
                 });
 
                 cout << "\nLast 15 Scores:\n";
@@ -210,7 +204,7 @@ public:
             } else {
                 // Sorting by date (newest first) for displaying all scores
                 sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
-                    return parseDateTime(a.dateTime) > parseDateTime(b.dateTime);
+                    return a.dateTime > b.dateTime;
                 });
 
                 cout << "\nAll Scores:\n";
