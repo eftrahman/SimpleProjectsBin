@@ -60,26 +60,30 @@ void generateMinefield() {
 void printMinefield(bool revealAll = false) {
     clearScreen();
     cout << "    >>~< Minesweeper >~<<" << endl << endl;
-    cout << "   ";
-    for (int x = 0; x < WIDTH; ++x) cout << x % 10 << " ";
+
+    // Print column numbers
+    cout << "    ";
+    for (int x = 0; x < WIDTH; ++x) cout << " " << x % 10 << " ";
     cout << endl;
 
     for (int y = 0; y < HEIGHT; ++y) {
-        cout << y % 10 << "  ";
+        // Print row numbers
+        cout << " " << y % 10 << " ";
+
         for (int x = 0; x < WIDTH; ++x) {
             if (revealAll) {
-                if (minefield[y][x].isMine) cout << "* ";
-                else if (minefield[y][x].adjacentMines > 0) cout << minefield[y][x].adjacentMines << " ";
-                else cout << ". ";
+                if (minefield[y][x].isMine) cout << " * ";
+                else if (minefield[y][x].adjacentMines > 0) cout << " " << minefield[y][x].adjacentMines << " ";
+                else cout << " . ";
             } else {
                 if (minefield[y][x].isRevealed) {
-                    if (minefield[y][x].isMine) cout << "* ";
-                    else if (minefield[y][x].adjacentMines > 0) cout << minefield[y][x].adjacentMines << " ";
-                    else cout << ". ";
+                    if (minefield[y][x].isMine) cout << " * ";
+                    else if (minefield[y][x].adjacentMines > 0) cout << " " << minefield[y][x].adjacentMines << " ";
+                    else cout << " . ";
                 } else if (minefield[y][x].isFlagged) {
-                    cout << "F ";
+                    cout << " F ";
                 } else {
-                    cout << "# ";
+                    cout << " # ";
                 }
             }
         }
