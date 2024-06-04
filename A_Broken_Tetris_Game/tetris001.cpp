@@ -2,15 +2,17 @@
 #include <vector>
 #include <ctime>
 #include <conio.h>
+#include <thread>
+#include <chrono>
 
 using namespace std;
 
 const int width = 10;
 const int height = 20;
-const char block = '#';
-const char empty = '.';
+const char blockChar = '#';
+const char emptyChar = '.';
 
-vector<vector<char>> grid(height, vector<char>(width, empty));
+vector<vector<char>> grid(height, vector<char>(width, emptyChar));
 
 struct Point {
     int x, y;
@@ -43,11 +45,11 @@ void drawGrid() {
     }
 }
 
-bool isValidMove(Tetromino t, int dx, int dy) {
-    for (auto& block : t.blocks) {
+bool isValidMove(const Tetromino& t, int dx, int dy) {
+    for (const auto& block : t.blocks) {
         int newX = t.pos.x + block.x + dx;
         int newY = t.pos.y + block.y + dy;
-        if (newX < 0 || newX >= width || newY < 0 || newY >= height || grid[newY][newX] == block) {
+        if (newX < 0 || newX >= width || newY < 0 || newY >= height || grid[newY][newX] != emptyChar) {
             return false;
         }
     }
@@ -55,8 +57,8 @@ bool isValidMove(Tetromino t, int dx, int dy) {
 }
 
 void placeTetromino() {
-    for (auto& block : currentTetromino.blocks) {
-        grid[currentTetromino.pos.y + block.y][currentTetromino.pos.x + block.x] = block;
+    for (const auto& block : currentTetromino.blocks) {
+        grid[currentTetromino.pos.y + block.y][currentTetromino.pos.x + block.x] = blockChar;
     }
 }
 
@@ -64,14 +66,14 @@ void removeFullLines() {
     for (int y = 0; y < height; ++y) {
         bool fullLine = true;
         for (int x = 0; x < width; ++x) {
-            if (grid[y][x] == empty) {
+            if (grid[y][x] == emptyChar) {
                 fullLine = false;
                 break;
             }
         }
         if (fullLine) {
             grid.erase(grid.begin() + y);
-            grid.insert(grid.begin(), vector<char>(width, empty));
+            grid.insert(grid.begin(), vector<char>(width, emptyChar));
         }
     }
 }
@@ -118,8 +120,7 @@ void gameLoop() {
                 break;
             }
         }
-        drawGrid();
-        _sleep(100);
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
 }
 
